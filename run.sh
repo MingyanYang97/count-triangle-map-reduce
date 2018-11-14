@@ -1,7 +1,9 @@
 #!/bin/bash
-hdfs dfs -rm -r -f /user/rayandrew/test_output
-hdfs dfs -rm -r -f /user/rayandrew/links_anon_output
-hdfs dfs -rm -r -f /user/rayandrew/twitter_rv_output
+
+# Uncomment this if needed
+# hdfs dfs -rm -r -f /user/rayandrew/test_output
+# hdfs dfs -rm -r -f /user/rayandrew/links_anon_output
+# hdfs dfs -rm -r -f /user/rayandrew/twitter_rv_output
 hdfs dfs -rm -r -f /user/rayandrew/temp
 
 rm Triangle*.class
