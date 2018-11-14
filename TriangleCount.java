@@ -10,7 +10,30 @@ import org.apache.hadoop.mapreduce.lib.input.*;
 import org.apache.hadoop.mapreduce.lib.output.*;
 import org.apache.hadoop.util.*;
 
+/**
+ * MapReduce using modified NodeIterator++ algorithm to count triangles in a graph.
+ * Input format: lines each containing 2 integers which represent edges.
+ * Input graph will be converted to an undirected graph, and duplicate edges will be removed.
+ * By Ray Andrew (13515073) and Jonathan Christopher (13515001).
+ * 
+ * - MapperOne: (a, b) -> a < b ? emit (a < b) : emit (b > a)
+ * - ReducerOne: emit single edges and edge pairs
+ *   - remove duplicates of b
+ *   - emit single edges ((x, y), SINGLE_EDGE)
+ *   - emit all edge pairs of a,x and a,y ((x, y), a) where x > a and y > a
+ *   
+ * - MapperTwo: no-op
+ * - ReducerTwo: count triangles which contain each edge pair
+ *   - match on single edges and edge pairs
+ *   - if edge pairs are connected to a single edge, count the number of edge pairs and emit it
+ * 
+ * - MapperThree: no-op
+ * - ReducerThree: sum all triangle counts
+ */
 public class TriangleCount extends Configured implements Tool {
+
+  public static final LongWritable SINGLE_EDGE = new LongWritable(-1);
+  public static final Text RESULT_KEY = new Text('triangleCount');
 
   public static class MapperOne extends Mapper<LongWritable, Text, LongWritable, LongWritable> {
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -19,80 +42,81 @@ public class TriangleCount extends Configured implements Tool {
         long node1 = Long.parseLong(str[0]);
         long node2 = Long.parseLong(str[1]);
 
-        if (node1 < node2)
+        // Ensure the left node index is less than the right node index
+        if (node1 < node2) {
           context.write(new LongWritable(node1), new LongWritable(node2));
-        else
+        } else {
           context.write(new LongWritable(node2), new LongWritable(node1));
+        }
       }
     }
   }
 
   public static class ReducerOne extends Reducer<LongWritable, LongWritable, Text, Text> {
-    Text rKey = new Text();
-    Text rValue = new Text();
-    private LongWritable dollar = new LongWritable(-1);
-
     public void reduce(LongWritable key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
-      Iterator<LongWritable> vs = values.iterator();
+      
+      // Insert values to a set to remove duplicates
+      Set<LongWritable> valuesSet = LinkedHashSet();
+      for (LongWritable node : values) {
+        valuesSet.add(node);
+      }
 
-      while (vs.hasNext()) {
+      // Insert unique values to list to ease combination generation
+      List<LongWritable> uniqueValues = ArrayList(valuesSet.size());
+      for (LongWritable node : valuesSet) {
+        uniqueValues.add(node);
+      }
 
-        long e = vs.next().get();
-        rKey.set(key.toString() + ',' + Long.toString(e));
-        rValue.set(dollar.toString());
-        context.write(rKey, rValue);
+      // Emit single edge
+      context.write(
+        new Text(Long.toString(key) + ',' + Long.toString(node)),
+        new Text(Long.toString(SINGLE_EDGE))
+      );
 
-        if (vs.hasNext()) {
-          long f = vs.next().get();
-
-          rKey.set(key.toString() + ',' + Long.toString(f));
-          rValue.set(dollar.toString());
-          context.write(rKey, rValue);
-
-          if (e != f) {
-            rKey.set(Long.toString(e) + ',' + Long.toString(f));
-            rValue.set(key.toString());
-            context.write(rKey, rValue);
-          }
+      // Emit all edge pairs which are connected on the key node
+      for (int i = 0; i < uniqueValues.size(); i++) {
+        for (int j = i + 1; j < uniqueValues.size(); j++) {
+          context.write(
+            new Text(Long.toString(uniqueValues[i]) + ',' + Long.toString(uniqueValues[j])),
+            new Text(Long.toString(key))
+          );
         }
       }
     }
   }
 
   public static class MapperTextLongWritable extends Mapper<LongWritable, Text, Text, LongWritable> {
-
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
       String[] str = value.toString().split("\\s+");
       if (str.length > 1) {
-        context.write(new Text(str[0]), new LongWritable(Long.parseLong(str[1])));
+        context.write(
+          new Text(str[0]),
+          new LongWritable(Long.parseLong(str[1]))
+        );
       }
     }
   }
 
-  public static class ReducerTwo extends Reducer<Text, LongWritable, LongWritable, LongWritable> {
-    private long dollar = -1;
-
-    int count = 0;
-    boolean isDollarExist = false;
-
-    public void cleanup(Context context) throws IOException, InterruptedException {
-      if (isDollarExist)
-        context.write(new LongWritable(0), new LongWritable(count));
-    }
-
+  public static class ReducerTwo extends Reducer<Text, LongWritable, Text, LongWritable> {
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
-      Iterator<LongWritable> vs = values.iterator();
+      long triangleCount = 0;
+      boolean hasSingleEdge = false;
 
-      while (vs.hasNext()) {
-        long e = vs.next().get();
-
-        if (e != dollar) {
-          count++;
+      for (LongWritable node : values) {
+        if (node == SINGLE_EDGE) {
+          hasSingleEdge = true;
+        } else {
+          triangleCount += 1;
         }
+      }
 
-        isDollarExist |= e == dollar;
+      if (hasSingleEdge) {
+        context.write(
+          RESULT_KEY,
+          new LongWritable(triangleCount)
+        );
       }
     }
   }
@@ -101,9 +125,8 @@ public class TriangleCount extends Configured implements Tool {
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long sum = 0;
-      Iterator<LongWritable> vs = values.iterator();
-      while (vs.hasNext()) {
-        sum += vs.next().get();
+      for (LongWritable triangleCount : values) {
+        sum += triangleCount.get();
       }
       context.write(new LongWritable(sum), NullWritable.get());
     }
