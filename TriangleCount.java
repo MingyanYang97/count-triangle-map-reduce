@@ -33,7 +33,7 @@ import org.apache.hadoop.util.*;
 public class TriangleCount extends Configured implements Tool {
 
   public static final LongWritable SINGLE_EDGE = new LongWritable(-1);
-  public static final Text RESULT_KEY = new Text('triangleCount');
+  public static final Text RESULT_KEY = new Text("triangleCount");
 
   public static class MapperOne extends Mapper<LongWritable, Text, LongWritable, LongWritable> {
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
@@ -57,29 +57,29 @@ public class TriangleCount extends Configured implements Tool {
         throws IOException, InterruptedException {
       
       // Insert values to a set to remove duplicates
-      Set<LongWritable> valuesSet = LinkedHashSet();
+      Set<LongWritable> valuesSet = new LinkedHashSet();
       for (LongWritable node : values) {
         valuesSet.add(node);
       }
 
       // Insert unique values to list to ease combination generation
-      List<LongWritable> uniqueValues = ArrayList(valuesSet.size());
+      List<LongWritable> uniqueValues = new ArrayList(valuesSet.size());
       for (LongWritable node : valuesSet) {
         uniqueValues.add(node);
-      }
 
-      // Emit single edge
-      context.write(
-        new Text(Long.toString(key) + ',' + Long.toString(node)),
-        new Text(Long.toString(SINGLE_EDGE))
-      );
+        // Emit single edge
+        context.write(
+          new Text(key.toString() + ',' + node.toString()),
+          new Text(SINGLE_EDGE.toString())
+        );
+      }
 
       // Emit all edge pairs which are connected on the key node
       for (int i = 0; i < uniqueValues.size(); i++) {
         for (int j = i + 1; j < uniqueValues.size(); j++) {
           context.write(
-            new Text(Long.toString(uniqueValues[i]) + ',' + Long.toString(uniqueValues[j])),
-            new Text(Long.toString(key))
+            new Text(uniqueValues.get(i).toString() + ',' + uniqueValues.get(j).toString()),
+            new Text(key.toString())
           );
         }
       }
@@ -105,7 +105,7 @@ public class TriangleCount extends Configured implements Tool {
       boolean hasSingleEdge = false;
 
       for (LongWritable node : values) {
-        if (node == SINGLE_EDGE) {
+        if (node.get() == SINGLE_EDGE.get()) {
           hasSingleEdge = true;
         } else {
           triangleCount += 1;
@@ -149,8 +149,8 @@ public class TriangleCount extends Configured implements Tool {
     jobOne.setMapperClass(MapperOne.class);
     jobOne.setReducerClass(ReducerOne.class);
 
-    FileInputFormat.addInputPath(jobOne, new Path(args[0]));
-    FileOutputFormat.setOutputPath(jobOne, new Path("/user/rayandrew/temp/mapreduce-one"));
+    TextInputFormat.addInputPath(jobOne, new Path(args[0]));
+    TextOutputFormat.setOutputPath(jobOne, new Path("/user/rayandrew/temp/mapreduce-one"));
 
     /**
      * Job Two
@@ -168,8 +168,8 @@ public class TriangleCount extends Configured implements Tool {
     jobTwo.setMapperClass(MapperTextLongWritable.class);
     jobTwo.setReducerClass(ReducerTwo.class);
 
-    FileInputFormat.addInputPath(jobTwo, new Path("/user/rayandrew/temp/mapreduce-one"));
-    FileOutputFormat.setOutputPath(jobTwo, new Path("/user/rayandrew/temp/mapreduce-two"));
+    TextInputFormat.addInputPath(jobTwo, new Path("/user/rayandrew/temp/mapreduce-one"));
+    TextOutputFormat.setOutputPath(jobTwo, new Path("/user/rayandrew/temp/mapreduce-two"));
 
     /**
      * Job Three
@@ -188,8 +188,8 @@ public class TriangleCount extends Configured implements Tool {
     jobThree.setMapperClass(MapperTextLongWritable.class);
     jobThree.setReducerClass(ReducerThree.class);
 
-    FileInputFormat.addInputPath(jobThree, new Path("/user/rayandrew/temp/mapreduce-two"));
-    FileOutputFormat.setOutputPath(jobThree, new Path(args[1]));
+    TextInputFormat.addInputPath(jobThree, new Path("/user/rayandrew/temp/mapreduce-two"));
+    TextOutputFormat.setOutputPath(jobThree, new Path(args[1]));
 
     int ret = jobOne.waitForCompletion(true) ? 0 : 1;
     if (ret == 0)
