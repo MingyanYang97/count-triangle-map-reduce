@@ -113,7 +113,6 @@ public class TriangleCount extends Configured implements Tool {
     /**
      * Job One
      */
-    // Job jobOne = Job.getInstance(conf, "mapreduce-one");
     Job jobOne = new Job(getConf());
     jobOne.setJobName("mapreduce-one");
 
@@ -135,8 +134,6 @@ public class TriangleCount extends Configured implements Tool {
      */
     Job jobTwo = new Job(getConf());
     jobTwo.setJobName("mapreduce-two");
-    // Job jobTwo = Job.getInstance(conf, "mapreduce-two");
-    // jobTwo.setNumReduceTasks(1);
 
     jobTwo.setMapOutputKeyClass(Text.class);
     jobTwo.setMapOutputValueClass(LongWritable.class);
@@ -156,7 +153,6 @@ public class TriangleCount extends Configured implements Tool {
      */
     Job jobThree = new Job(getConf());
     jobThree.setJobName("mapreduce-three");
-    // Job jobThree = Job.getInstance(conf, "mapreduce-two");
     jobThree.setNumReduceTasks(1);
 
     jobThree.setMapOutputKeyClass(Text.class);
