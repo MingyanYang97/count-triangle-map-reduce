@@ -51,32 +51,31 @@ public class TriangleCount extends Configured implements Tool {
   }
 
   public static class ReducerOne extends Reducer<LongWritable, LongWritable, Text, Text> {
+    Set<Long> valuesSet = new HashSet(4000000);
+    List<Long> uniqueValues = new ArrayList(4000000);
+
     public void reduce(LongWritable key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
 
       // Insert values to a set to remove duplicates
-      Set<LongWritable> valuesSet = new LinkedHashSet(4000000);
       Iterator<LongWritable> valuesIterator = values.iterator();
       while (valuesIterator.hasNext()) {
         LongWritable node = valuesIterator.next();
-        valuesSet.add(new LongWritable(node.get()));
+        if (!valuesSet.contains(node)) {
+          valuesSet.add(node.get());
+          uniqueValues.add(node.get());
+
+          // Emit single values
+          context.write(new Text(key.toString() + "," + node.toString()), new Text(SINGLE_EDGE.toString()));
+        }
       }
 
-      // Insert unique values to list to ease combination generation
-      List<LongWritable> uniqueValues = new ArrayList(valuesSet.size());
-      Iterator<LongWritable> valuesSetIterator = valuesSet.iterator();
-      while (valuesSetIterator.hasNext()) {
-        LongWritable node = valuesSetIterator.next();
-        uniqueValues.add(new LongWritable(node.get()));
-
-        // Emit single values
-        context.write(new Text(key.toString() + "," + node.toString()), new Text(SINGLE_EDGE.toString()));
-      }
+      valuesSet.clear();
 
       // Emit all edge pairs which are connected on the key node
       for (int i = 0; i < uniqueValues.size(); i++) {
         for (int j = i + 1; j < uniqueValues.size(); j++) {
-          if (uniqueValues.get(i).get() < uniqueValues.get(j).get()) {
+          if (uniqueValues.get(i) < uniqueValues.get(j)) {
             context.write(new Text(uniqueValues.get(i).toString() + "," + uniqueValues.get(j).toString()),
                 new Text(key.toString()));
           } else {
@@ -85,6 +84,8 @@ public class TriangleCount extends Configured implements Tool {
           }
         }
       }
+
+      uniqueValues.clear();
     }
   }
 
