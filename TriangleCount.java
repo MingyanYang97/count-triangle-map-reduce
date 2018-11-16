@@ -55,7 +55,7 @@ public class TriangleCount extends Configured implements Tool {
         throws IOException, InterruptedException {
 
       // Insert values to a set to remove duplicates
-      Set<LongWritable> valuesSet = new LinkedHashSet();
+      Set<LongWritable> valuesSet = new LinkedHashSet(4000000);
       Iterator<LongWritable> valuesIterator = values.iterator();
       while (valuesIterator.hasNext()) {
         LongWritable node = valuesIterator.next();
@@ -63,7 +63,7 @@ public class TriangleCount extends Configured implements Tool {
       }
 
       // Insert unique values to list to ease combination generation
-      List<LongWritable> uniqueValues = new ArrayList();
+      List<LongWritable> uniqueValues = new ArrayList(valuesSet.size());
       Iterator<LongWritable> valuesSetIterator = valuesSet.iterator();
       while (valuesSetIterator.hasNext()) {
         LongWritable node = valuesSetIterator.next();
