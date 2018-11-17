@@ -22,7 +22,7 @@ public class Graph {
    * Create new Graph object.
    */
   public Graph() {
-    this.adjacencyList = new HashMap<>(MAX_SIZE);
+    this.adjacencyList = new HashMap(MAX_SIZE);
   }
 
   /**
@@ -184,7 +184,7 @@ public class Graph {
       throw new Error("Partition must be more than 1");
     }
 
-    List<Integer> vertices = new ArrayList<>(MAX_SIZE);
+    List<Integer> vertices = new ArrayList(MAX_SIZE);
     Iterator<Integer> verticesIterator = getAllVertices().iterator();
     verticesIterator.forEachRemaining(vertices::add);
 
