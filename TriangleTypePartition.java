@@ -53,7 +53,7 @@ public class TriangleTypePartition extends Configured implements Tool {
     }
   }
 
-  public static class ReducerOne extends Reducer<LongPair, NullWritable, TextWritable, NullWritable> {
+  public static class ReducerOne extends Reducer<LongPair, NullWritable, Text, NullWritable> {
     public void reduce(LongPair key, Iterable<NullWritable> values, Context context)
         throws IOException, InterruptedException {
       context.write(
