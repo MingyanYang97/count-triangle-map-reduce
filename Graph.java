@@ -12,17 +12,17 @@ import java.util.*;
 /**
  * A simple undirected and unweighted graph implementation.
  *
- * @param <Integer> The type that would be used as vertex.
+ * @param <Long> The type that would be used as vertex.
  */
 public class Graph {
-  final private HashMap<Integer, Set<Integer>> adjacencyList;
+  final private HashMap<Long, Set<Long>> adjacencyList;
   final private int MAX_SIZE = 4000000;
 
   /**
    * Create new Graph object.
    */
   public Graph() {
-    this.adjacencyList = new HashMap(MAX_SIZE);
+    this.adjacencyList = new HashMap<>(MAX_SIZE);
   }
 
   /**
@@ -30,9 +30,9 @@ public class Graph {
    *
    * @param v The vertex object.
    */
-  public void addVertex(Integer v) {
+  public void addVertex(Long v) {
     if (!this.adjacencyList.containsKey(v)) {
-      this.adjacencyList.put(v, new HashSet<Integer>());
+      this.adjacencyList.put(v, new HashSet<Long>());
     }
   }
 
@@ -41,14 +41,14 @@ public class Graph {
    *
    * @param v The vertex that will be removed.
    */
-  public void removeVertex(Integer v) {
+  public void removeVertex(Long v) {
     if (!this.adjacencyList.containsKey(v)) {
       throw new IllegalArgumentException("Vertex doesn't exist.");
     }
 
     this.adjacencyList.remove(v);
 
-    for (Integer u : this.getAllVertices()) {
+    for (Long u : this.getAllVertices()) {
       this.adjacencyList.get(u).remove(v);
     }
   }
@@ -60,7 +60,7 @@ public class Graph {
    * @param v Start vertex.
    * @param u Destination vertex.
    */
-  public void addEdge(Integer v, Integer u) {
+  public void addEdge(Long v, Long u) {
     if (!this.adjacencyList.containsKey(v) || !this.adjacencyList.containsKey(u)) {
       // throw new IllegalArgumentException();
       this.addVertex(u);
@@ -78,7 +78,7 @@ public class Graph {
    * @param v Start vertex.
    * @param u Destination vertex.
    */
-  public void removeEdge(Integer v, Integer u) {
+  public void removeEdge(Long v, Long u) {
     if (!this.adjacencyList.containsKey(v) || !this.adjacencyList.containsKey(u)) {
       throw new IllegalArgumentException();
     }
@@ -94,7 +94,7 @@ public class Graph {
    * @param u Destination vertex.
    * @return <tt>true</tt> if the vertex v and u are connected.
    */
-  public boolean isAdjacent(Integer v, Integer u) {
+  public boolean isAdjacent(Long v, Long u) {
     return this.adjacencyList.get(v).contains(u);
   }
 
@@ -103,7 +103,7 @@ public class Graph {
    *
    * @return An Iterable for all vertices in the graph.
    */
-  public Iterable<Integer> getAllVertices() {
+  public Iterable<Long> getAllVertices() {
     return this.adjacencyList.keySet();
   }
 
@@ -113,7 +113,7 @@ public class Graph {
    * @param v The vertex.
    * @return An iterable for connected vertices.
    */
-  public Iterable<Integer> getNeighbors(Integer v) {
+  public Iterable<Long> getNeighbors(Long v) {
     return this.adjacencyList.get(v);
   }
 
@@ -123,9 +123,9 @@ public class Graph {
    * @param v The vertex.
    * @return Degree count for vertex v.
    */
-  public long degree(Integer v) {
+  public long degree(Long v) {
     long counter = 0;
-    Iterator<Integer> neighborIterator = getNeighbors(v).iterator();
+    Iterator<Long> neighborIterator = getNeighbors(v).iterator();
 
     while (neighborIterator.hasNext()) {
       neighborIterator.next();
@@ -142,9 +142,9 @@ public class Graph {
    * @param v        vertex.
    * @return first neighbor with min grade.
    */
-  private Integer firstNeighborIndex(List<Integer> vertices, Integer v) { // fni
+  private Integer firstNeighborIndex(List<Long> vertices, Long v) { // fni
     int index, min = vertices.size();
-    Iterator<Integer> neighborIterator = getNeighbors(v).iterator();
+    Iterator<Long> neighborIterator = getNeighbors(v).iterator();
 
     while (neighborIterator.hasNext()) {
       index = vertices.indexOf(neighborIterator.next());
@@ -164,9 +164,9 @@ public class Graph {
    * @param j        vertex to be compared with.
    * @return first neighbor with min grade of vertex v.
    */
-  private Integer firstNeighborWithMinDegree(List<Integer> vertices, Integer v, Integer j) { // nni
+  private Integer firstNeighborWithMinDegree(List<Long> vertices, Long v, Integer j) { // nni
     int index, min = vertices.size();
-    Iterator<Integer> neighborIterator = getNeighbors(v).iterator();
+    Iterator<Long> neighborIterator = getNeighbors(v).iterator();
 
     while (neighborIterator.hasNext()) {
       index = vertices.indexOf(neighborIterator.next());
@@ -179,19 +179,19 @@ public class Graph {
     return min;
   }
 
-  public double countTrianglesWithPartition(Integer p) {
+  public double countTrianglesWithPartition(int p) {
     if (p <= 1) {
       throw new Error("Partition must be more than 1");
     }
 
-    List<Integer> vertices = new ArrayList(MAX_SIZE);
-    Iterator<Integer> verticesIterator = getAllVertices().iterator();
+    List<Long> vertices = new ArrayList<>(MAX_SIZE);
+    Iterator<Long> verticesIterator = getAllVertices().iterator();
     verticesIterator.forEachRemaining(vertices::add);
 
-    java.util.Collections.sort(vertices, new java.util.Comparator<Integer>() {
+    java.util.Collections.sort(vertices, new java.util.Comparator<Long>() {
 
       @Override
-      public int compare(Integer o1, Integer o2) {
+      public int compare(Long o1, Long o2) {
         return (degree(o1) > degree(o2) ? -1 : (degree(o1) == degree(o2) ? 0 : 1));
       }
     });
@@ -199,11 +199,11 @@ public class Graph {
     // algorithm compact-forward
     double counter = 0.0;
 
-    Integer l;
-    Iterator<Integer> neighborsIterator;
-    Integer templ;
-    Integer tempk;
-    Integer tempi;
+    int l;
+    Iterator<Long> neighborsIterator;
+    Long templ;
+    Long tempk;
+    Long tempi;
     for (int i = 0; i < vertices.size(); i++) {
       neighborsIterator = getNeighbors(vertices.get(i)).iterator();
       while (neighborsIterator.hasNext()) {
@@ -245,20 +245,20 @@ public class Graph {
   // public static void main(String[] args) {
   // Graph graph = new Graph();
 
-  // graph.addEdge(1, 2);
-  // graph.addEdge(2, 1);
-  // graph.addEdge(2, 3);
-  // graph.addEdge(3, 4);
-  // graph.addEdge(4, 3);
-  // graph.addEdge(3, 1);
-  // graph.addEdge(13, 12);
-  // graph.addEdge(12, 13);
-  // graph.addEdge(12, 14);
-  // graph.addEdge(12, 15);
-  // graph.addEdge(14, 15);
-  // graph.addEdge(16, 17);
+  // graph.addEdge(new Long(1), new Long(2));
+  // graph.addEdge(new Long(2), new Long(1));
+  // graph.addEdge(new Long(2), new Long(3));
+  // graph.addEdge(new Long(3), new Long(4));
+  // graph.addEdge(new Long(4), new Long(3));
+  // graph.addEdge(new Long(3), new Long(1));
+  // graph.addEdge(new Long(13), new Long(12));
+  // graph.addEdge(new Long(12), new Long(13));
+  // graph.addEdge(new Long(12), new Long(14));
+  // graph.addEdge(new Long(12), new Long(15));
+  // graph.addEdge(new Long(14), new Long(15));
+  // graph.addEdge(new Long(16), new Long(17));
 
-  // Iterator<Integer> graphIterator = graph.getAllVertices().iterator();
+  // Iterator<Long> graphIterator = graph.getAllVertices().iterator();
   // while (graphIterator.hasNext()) {
   // System.out.println(graphIterator.next());
   // }

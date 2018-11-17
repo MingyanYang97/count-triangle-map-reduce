@@ -14,12 +14,12 @@ import org.apache.hadoop.util.*;
 public class GraphPartition extends Configured implements Tool {
   public static final Text RESULT_KEY = new Text("triangleCount");
 
-  public static class MapperOne extends Mapper<LongWritable, Text, Text, IntPair> {
+  public static class MapperOne extends Mapper<LongWritable, Text, Text, LongPair> {
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
       int p = conf.getInt("partitions", -1);
 
-      IntPair _value = new IntPair();
+      LongPair _value = new LongPair();
 
       String[] str = value.toString().split("\\s+");
       if (str.length > 1) {
@@ -67,20 +67,20 @@ public class GraphPartition extends Configured implements Tool {
     }
   }
 
-  public static class ReducerOne extends Reducer<Text, IntPair, NullWritable, DoubleWritable> {
-    public void reduce(Text key, Iterable<IntPair> values, Context context) throws IOException, InterruptedException {
+  public static class ReducerOne extends Reducer<Text, LongPair, NullWritable, DoubleWritable> {
+    public void reduce(Text key, Iterable<LongPair> values, Context context) throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
       int p = conf.getInt("partitions", -1);
 
-      Iterator<IntPair> valuesIterator = values.iterator();
+      Iterator<LongPair> valuesIterator = values.iterator();
       Graph graph = new Graph();
 
       while (valuesIterator.hasNext()) {
-        IntPair e = valuesIterator.next();
+        LongPair e = valuesIterator.next();
         graph.addEdge(e.getFirst(), e.getSecond());
       }
 
-      context.write(NullWritable.get(), graph.countTrianglesWithPartition(p));
+      context.write(NullWritable.get(), new DoubleWritable(graph.countTrianglesWithPartition(p)));
     }
   }
 
