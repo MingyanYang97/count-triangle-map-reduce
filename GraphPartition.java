@@ -95,8 +95,8 @@ public class GraphPartition extends Configured implements Tool {
     }
   }
 
-  public static class ReducerTwo extends Mapper<Text, DoubleWritable, NullWritable, DoubleWritable> {
-    public void map(Text key, Iterable<DoubleWritable> values, Context context)
+  public static class ReducerTwo extends Reducer<Text, DoubleWritable, NullWritable, DoubleWritable> {
+    public void reduce(Text key, Iterable<DoubleWritable> values, Context context)
         throws IOException, InterruptedException {
       Iterator<DoubleWritable> valueIterator = values.iterator();
       double sum = 0.0;
