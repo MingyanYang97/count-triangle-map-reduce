@@ -230,15 +230,14 @@ public class TriangleTypePartition extends Configured implements Tool {
   }
 
   public static class ReducerThree extends Reducer<Text, LongWritable, Text, LongWritable> {
-    public void reduce(Text key, Iterable<DoubleWritable> values, Context context)
+    public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
       long p = conf.getLong(PARTITION_COUNT_CONFIG_KEY, DEFAULT_PARTITION_COUNT);
 
-      Iterator<DoubleWritable> valueIterator = values.iterator();
       long sum = 0;
-      while (valueIterator.hasNext()) {
-        sum += valueIterator.next().get();
+      for (LongWritable value : values) {
+        sum += value.get();
       }
 
       if (key.toString().equals(TYPE_1_TRIANGLE_COUNT_KEY)) {
@@ -296,6 +295,7 @@ public class TriangleTypePartition extends Configured implements Tool {
 
     Job jobThree = new Job(getConf());
     jobThree.setJobName("mapreduce-three");
+    jobThree.setNumReduceTasks(1);
 
     jobThree.setMapOutputKeyClass(Text.class);
     jobThree.setMapOutputValueClass(LongWritable.class);
