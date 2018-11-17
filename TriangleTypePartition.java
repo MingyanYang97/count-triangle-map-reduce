@@ -22,7 +22,7 @@ import org.apache.hadoop.util.*;
  * For each partition, we use the Compact-Forward triangle counting algorithm as outlined in
  * Matthieu Latapy's 2008 paper
  * (Main-memory triangle computations for very large (sparse (power-law)) graphs,
- * Theoretical Computer Science, 407(1):458–473)
+ * Theoretical Computer Science, 407(1):458-473)
  * http://complexnetworks.fr/wp-content/uploads/2011/01/triangles.pdf
  */
 public class TriangleTypePartition extends Configured implements Tool {
@@ -30,8 +30,8 @@ public class TriangleTypePartition extends Configured implements Tool {
   public static final long DEFAULT_PARTITION_COUNT = 64;
   public static final String PARTITION_COUNT_CONFIG_KEY = "partitionCount";
 
-  public static final long ESTIMATED_VERTEX_COUNT_PER_REDUCE = 200000;
-  public static final long ESTIMATED_VERTEX_DEGREE_PER_REDUCE = 100;
+  public static final int ESTIMATED_VERTEX_COUNT_PER_REDUCE = 200000;
+  public static final int ESTIMATED_VERTEX_DEGREE_PER_REDUCE = 100;
 
   public static final Text TYPE_1_TRIANGLE_COUNT_KEY = new Text("A");
   public static final Text TYPE_2_OR_3_TRIANGLE_COUNT_KEY = new Text("B");
@@ -57,7 +57,7 @@ public class TriangleTypePartition extends Configured implements Tool {
     public void reduce(LongPair key, Iterable<NullWritable> values, Context context)
         throws IOException, InterruptedException {
       context.write(
-        new Text(key.first.toString() + " " + key.second.toString()),
+        new Text(String.valueOf(key.first) + " " + String.valueOf(key.second)),
         NullWritable.get()
       );
     }
@@ -119,7 +119,7 @@ public class TriangleTypePartition extends Configured implements Tool {
     List<Long> vertices = new ArrayList(ESTIMATED_VERTEX_COUNT_PER_REDUCE);
 
     // Comparator for ordering vertices by degree, then by index in descending order
-    public long compareVertices(long v1, long v2) {
+    public int compareVertices(long v1, long v2) {
       return Long.compare(
         (((long) this.adjacencyList.get(v2).size()) << 34) + ((long) v2),
         (((long) this.adjacencyList.get(v1).size()) << 34) + ((long) v1)
@@ -212,7 +212,7 @@ public class TriangleTypePartition extends Configured implements Tool {
 
   public static class MapperThree extends Mapper<LongWritable, Text, Text, LongWritable> {
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-      String valueStrings = value.toString();
+      String valueStrings = value.toString().split("\\s+");
       if (valueStrings.length > 1) {
         context.write(
           new Text(valueStrings[0].trim()),
