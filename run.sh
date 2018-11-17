@@ -11,8 +11,8 @@ hdfs dfs -rm -r -f /user/rayandrew/temp
 # jar cf triangle.jar Triangle*.class
 
 rm Graph*.class
-hadoop com.sun.tools.javac.Main GraphPartition.java Graph.java
-jar cf graph.jar Graph*.class
+hadoop com.sun.tools.javac.Main GraphPartition.java Graph.java LongPair.java
+jar cf graph.jar Graph*.class LongPair*.class
 
 # Uncomment to use links-anon file
 # hadoop jar triangle.jar TriangleCount /user/rayandrew/links_anon_input /user/rayandrew/links_anon_output
