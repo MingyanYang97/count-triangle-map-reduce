@@ -126,6 +126,13 @@ public class TriangleTypePartition extends Configured implements Tool {
       );
     }
 
+    class VertexComparator implements Comparator<Long> {
+      @Override
+      public int compare(Long v1, Long v2) {
+        return compareVertices(v1, v2);
+      }
+    }
+
     public void reduce(Text key, Iterable<LongPair> values, Context context) throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
       long p = conf.getLong(PARTITION_COUNT_CONFIG_KEY, DEFAULT_PARTITION_COUNT);
@@ -148,17 +155,9 @@ public class TriangleTypePartition extends Configured implements Tool {
         adjacencyList.get(edge.second).add(edge.first);
       }
 
-
-      // Sort vertices and neighbors of each vertex
-      Comparator<Long> vertexComparator = new Comparator() {
-        @Override
-        public int compare(Long v1, Long v2) {
-          return compareVertices(v1, v2);
-        }
-      };
-      Collections.sort(vertices, vertexComparator);
+      Collections.sort(vertices, new VertexComparator());
       for (Long vertex : vertices) {
-        Collections.sort(adjacencyList.get(vertex, vertexComparator));
+        Collections.sort(adjacencyList.get(vertex), new VertexComparator());
       }
 
       long type1TriangleCount = 0;
