@@ -4,7 +4,6 @@ import java.util.*;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.examples.SecondarySort.IntPair;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.*;
@@ -120,7 +119,7 @@ public class GraphPartition extends Configured implements Tool {
     jobOne.setJobName("mapreduce-one");
 
     jobOne.setMapOutputKeyClass(Text.class);
-    jobOne.setMapOutputValueClass(IntPair.class);
+    jobOne.setMapOutputValueClass(LongPair.class);
 
     jobOne.setOutputKeyClass(NullWritable.class);
     jobOne.setOutputValueClass(DoubleWritable.class);
