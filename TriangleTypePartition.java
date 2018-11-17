@@ -229,6 +229,20 @@ public class TriangleTypePartition extends Configured implements Tool {
     }
   }
 
+  public static class ReducerFour extends Reducer<Text, LongWritable, Text, LongWritable> {
+    public void reduce(Text key, Iterable<DoubleWritable> values, Context context)
+        throws IOException, InterruptedException {
+      Iterator<DoubleWritable> valueIterator = values.iterator();
+      long sum = 0;
+
+      while (valueIterator.hasNext()) {
+        sum += valueIterator.next().get();
+      }
+
+      context.write(RESULT_KEY, new LongWritable(sum));
+    }
+  }
+
   public int run(String[] args) throws Exception {
 
     /* Set up configuration */
@@ -276,7 +290,6 @@ public class TriangleTypePartition extends Configured implements Tool {
 
     Job jobThree = new Job(getConf());
     jobThree.setJobName("mapreduce-three");
-    jobThree.setNumReduceTasks(1);
 
     jobThree.setMapOutputKeyClass(Text.class);
     jobThree.setMapOutputValueClass(LongWritable.class);
@@ -288,7 +301,25 @@ public class TriangleTypePartition extends Configured implements Tool {
     jobThree.setReducerClass(ReducerThree.class);
 
     TextInputFormat.addInputPath(jobThree, new Path("/user/rayandrew/temp/mapreduce-two"));
-    TextOutputFormat.setOutputPath(jobThree, new Path(outputPath));
+    TextOutputFormat.setOutputPath(jobThree, new Path("/user/rayandrew/temp/mapreduce-three"));
+
+    /* Job 3: Sum triangle counts */
+
+    Job jobFour = new Job(getConf());
+    jobFour.setJobName("mapreduce-four");
+    jobFour.setNumReduceTasks(1);
+
+    jobFour.setMapOutputKeyClass(Text.class);
+    jobFour.setMapOutputValueClass(LongWritable.class);
+    jobFour.setOutputKeyClass(Text.class);
+    jobFour.setOutputValueClass(LongWritable.class);
+
+    jobFour.setJarByClass(TriangleTypePartition.class);
+    jobFour.setMapperClass(MapperThree.class);
+    jobFour.setReducerClass(ReducerFour.class);
+
+    TextInputFormat.addInputPath(jobFour, new Path("/user/rayandrew/temp/mapreduce-three"));
+    TextOutputFormat.setOutputPath(jobFour, new Path(outputPath));
 
     /* Execute jobs */
 
@@ -299,6 +330,8 @@ public class TriangleTypePartition extends Configured implements Tool {
       ret = jobTwo.waitForCompletion(true) ? 0 : 1;
     if (ret == 0)
       ret = jobThree.waitForCompletion(true) ? 0 : 1;
+    if (ret == 0)
+      ret = jobFour.waitForCompletion(true) ? 0 : 1;
 
     long endTime = System.nanoTime();
 
