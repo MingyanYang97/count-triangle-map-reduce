@@ -18,7 +18,8 @@ jar cf graph.jar Graph*.class LongPair*.class
 # hadoop jar triangle.jar TriangleCount /user/rayandrew/links_anon_input /user/rayandrew/links_anon_output
 
 # Uncomment to use twitter-rv file
-hadoop jar graph.jar GraphPartition /data/twitter /user/rayandrew/twitter_output
+# Partition into 8 node
+hadoop jar graph.jar GraphPartition /data/twitter /user/rayandrew/twitter_output 8
 
 # Uncomment to use test file
 # hadoop jar triangle.jar TriangleCount /user/rayandrew/test_input /user/rayandrew/test_output

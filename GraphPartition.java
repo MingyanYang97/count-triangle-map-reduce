@@ -113,6 +113,9 @@ public class GraphPartition extends Configured implements Tool {
     /**
      * Job One
      */
+    long startTime = System.nanoTime();
+    getConf().setInt("partitions", Integer.parseInt(args[2]));
+
     Job jobOne = new Job(getConf());
     jobOne.setJobName("mapreduce-one");
 
@@ -143,11 +146,15 @@ public class GraphPartition extends Configured implements Tool {
     jobTwo.setReducerClass(ReducerTwo.class);
 
     TextInputFormat.addInputPath(jobTwo, new Path("/user/rayandrew/temp"));
-    TextOutputFormat.setOutputPath(jobTwo, new Path(args[0]));
+    TextOutputFormat.setOutputPath(jobTwo, new Path(args[1]));
 
     int ret = jobOne.waitForCompletion(true) ? 0 : 1;
     if (ret == 0)
       ret = jobTwo.waitForCompletion(true) ? 0 : 1;
+
+    long estimatedTime = System.nanoTime() - startTime;
+    System.out.println("Estimated Execution Time = " + estimatedTime + " nanoseconds");
+    System.out.println("Estimated Execution Time = " + estimatedTime / 1000000000 + " seconds");
 
     return ret;
   }
