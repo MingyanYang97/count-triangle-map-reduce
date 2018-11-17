@@ -23,7 +23,10 @@ jar cf ttp.jar TriangleTypePartition*.class LongPair*.class
 
 # Uncomment to use twitter-rv file
 # Use 64 partitions
-hadoop jar ttp.jar TriangleTypePartition /data/twitter /user/rayandrew/twitter_output 64
+# hadoop jar ttp.jar TriangleTypePartition /data/twitter /user/rayandrew/twitter_output 64
 
-# Uncomment to use test file
-# hadoop jar ttp.jar TriangleTypePartition /user/rayandrew/test_input /user/rayandrew/test_output 64
+# Uncomment to use testcase 1 file
+# hadoop jar ttp.jar TriangleTypePartition /data/testcase1 /user/rayandrew/testcase1_output 3
+
+# Uncomment to use testcase 2 file
+# hadoop jar ttp.jar TriangleTypePartition /data/testcase2 /user/rayandrew/testcase2_output 5
