@@ -6,9 +6,13 @@
 # hdfs dfs -rm -r -f /user/rayandrew/twitter_rv_output
 hdfs dfs -rm -r -f /user/rayandrew/temp
 
-rm Triangle*.class
-hadoop com.sun.tools.javac.Main TriangleCount.java
-jar cf triangle.jar Triangle*.class
+# rm Triangle*.class
+# hadoop com.sun.tools.javac.Main TriangleCount.java
+# jar cf triangle.jar Triangle*.class
+
+rm Graph*.class
+hadoop com.sun.tools.javac.Main GraphPartition.java Graph.java
+jar cf graph.jar Graph*.class
 
 # Uncomment to use links-anon file
 # hadoop jar triangle.jar TriangleCount /user/rayandrew/links_anon_input /user/rayandrew/links_anon_output
