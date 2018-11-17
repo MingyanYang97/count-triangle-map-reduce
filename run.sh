@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Uncomment this if needed
-# hdfs dfs -rm -r -f /user/rayandrew/test_output
-# hdfs dfs -rm -r -f /user/rayandrew/links_anon_output
-# hdfs dfs -rm -r -f /user/rayandrew/twitter_rv_output
 hdfs dfs -rm -r -f /user/rayandrew/temp
 
 # rm Triangle*.class
@@ -23,7 +19,15 @@ jar cf ttp.jar TriangleTypePartition*.class LongPair*.class
 
 # Uncomment to use twitter-rv file
 # Use 64 partitions
-hadoop jar ttp.jar TriangleTypePartition /data/twitter /user/rayandrew/twitter_output 64
+# hdfs dfs -rm -r -f /user/rayandrew/twitter_output
+# hadoop jar ttp.jar TriangleTypePartition /data/twitter /user/rayandrew/twitter_output 64
 
-# Uncomment to use test file
-# hadoop jar ttp.jar TriangleTypePartition /user/rayandrew/test_input /user/rayandrew/test_output 64
+# Uncomment to use testcase 1 file
+# Use 3 partitions
+# hdfs dfs -rm -r -f /user/rayandrew/testcase1_output
+# hadoop jar ttp.jar TriangleTypePartition /data/testcase1 /user/rayandrew/testcase1_output 3
+
+# Uncomment to use testcase 2 file
+# Use 5 partitions
+# hdfs dfs -rm -r -f /user/rayandrew/testcase2_output
+# hadoop jar ttp.jar TriangleTypePartition /data/testcase2 /user/rayandrew/testcase2_output 5
