@@ -18,8 +18,6 @@ public class GraphPartition extends Configured implements Tool {
       Configuration conf = context.getConfiguration();
       int p = conf.getInt("partitions", -1);
 
-      LongPair _value = new LongPair();
-
       String[] str = value.toString().split("\\s+");
       if (str.length > 1) {
         long node1 = Long.parseLong(str[0]);
@@ -39,8 +37,8 @@ public class GraphPartition extends Configured implements Tool {
           for (int b = a + 1; b <= p - 1; b++) {
             if ((hashNode1 == a) && (hashNode2 == b) || (hashNode1 == b) && (hashNode2 == a)
                 || (hashNode1 == a) && (hashNode2 == a) || (hashNode1 == b) && (hashNode2 == b)) {
-              _value.set(node1, node2);
-              context.write(new Text(String.valueOf((a) + ',' + String.valueOf(b))), _value);
+              context.write(new Text(String.valueOf((a) + ',' + String.valueOf(b))),
+                  new LongPair(node1, node2));
             }
           }
         }
@@ -54,9 +52,8 @@ public class GraphPartition extends Configured implements Tool {
                     || (hashNode1 == b) && (hashNode2 == b) || (hashNode1 == b) && (hashNode2 == c)
                     || (hashNode1 == c) && (hashNode2 == a) || (hashNode1 == c) && (hashNode2 == b)
                     || (hashNode1 == c) && (hashNode2 == c)) {
-                  _value.set(node1, node2);
                   context.write(new Text(String.valueOf((a) + ',' + String.valueOf(b)) + ',' + String.valueOf(c)),
-                      _value);
+                      new LongPair(node1, node2));
                 }
               }
             }
@@ -76,7 +73,7 @@ public class GraphPartition extends Configured implements Tool {
 
       while (valuesIterator.hasNext()) {
         LongPair e = valuesIterator.next();
-        graph.addEdge(e.getFirst(), e.getSecond());
+        graph.addEdge(e.first, e.second);
       }
 
       context.write(NullWritable.get(), new DoubleWritable(graph.countTrianglesWithPartition(p)));

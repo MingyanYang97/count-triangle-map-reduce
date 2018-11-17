@@ -7,23 +7,12 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
 public class LongPair implements WritableComparable<LongPair> {
-  private long first = 0;
-  private long second = 0;
+  public long first = 0;
+  public long second = 0;
 
-  /**
-   * Set the left and right values.
-   */
-  public void set(long left, long right) {
-    first = left;
-    second = right;
-  }
-
-  public long getFirst() {
-    return first;
-  }
-
-  public long getSecond() {
-    return second;
+  LongPair(long _first, long _second) {
+    first = _first;
+    second = _second;
   }
 
   /**
