@@ -11,18 +11,19 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 import org.apache.hadoop.util.*;
 
 /**
- * A Triangle Type Partition graph triangle counting algorithm implementation for Hadoop
- * by nathanchrs and rayandrews.
+ * A Triangle Type Partition graph triangle counting algorithm implementation
+ * for Hadoop by nathanchrs and rayandrews.
  *
- * Implements the TTP algorithm proposed in the 2013 paper of Ha-Myung Park and Chin-Wan Chung of KAIST
- * (An Efficient MapReduce Algorithm for Counting Triangles in a Very Large Graph, CIKM '13)
- * http://islab.kaist.ac.kr/chungcw/InterConfPapers/km0805-ha-myung.pdf
- * or http://dx.doi.org/10.1145/2505515.2505563
+ * Implements the TTP algorithm proposed in the 2013 paper of Ha-Myung Park and
+ * Chin-Wan Chung of KAIST (An Efficient MapReduce Algorithm for Counting
+ * Triangles in a Very Large Graph, CIKM '13)
+ * http://islab.kaist.ac.kr/chungcw/InterConfPapers/km0805-ha-myung.pdf or
+ * http://dx.doi.org/10.1145/2505515.2505563
  *
- * For each partition, we use the Compact-Forward triangle counting algorithm as outlined in
- * Matthieu Latapy's 2008 paper
- * (Main-memory triangle computations for very large (sparse (power-law)) graphs,
- * Theoretical Computer Science, 407(1):458-473)
+ * For each partition, we use the Compact-Forward triangle counting algorithm as
+ * outlined in Matthieu Latapy's 2008 paper (Main-memory triangle computations
+ * for very large (sparse (power-law)) graphs, Theoretical Computer Science,
+ * 407(1):458-473)
  * http://complexnetworks.fr/wp-content/uploads/2011/01/triangles.pdf
  */
 public class TriangleTypePartition extends Configured implements Tool {
@@ -56,10 +57,7 @@ public class TriangleTypePartition extends Configured implements Tool {
   public static class ReducerOne extends Reducer<LongPair, NullWritable, Text, NullWritable> {
     public void reduce(LongPair key, Iterable<NullWritable> values, Context context)
         throws IOException, InterruptedException {
-      context.write(
-        new Text(String.valueOf(key.first) + " " + String.valueOf(key.second)),
-        NullWritable.get()
-      );
+      context.write(new Text(String.valueOf(key.first) + " " + String.valueOf(key.second)), NullWritable.get());
     }
   }
 
@@ -75,41 +73,32 @@ public class TriangleTypePartition extends Configured implements Tool {
         long vertexPartition1 = vertex1 % p;
         long vertexPartition2 = vertex2 % p;
 
-        for (long a = 0; a < p-1; a++) {
-          for (long b = a+1; b < p; b++) {
-            if (
-              ((vertexPartition1 == a) && (vertexPartition2 == b)) ||
-              ((vertexPartition1 == b) && (vertexPartition2 == a)) ||
-              ((vertexPartition1 == a) && (vertexPartition2 == a)) ||
-              ((vertexPartition1 == b) && (vertexPartition2 == b))
-            ) {
-              context.write(
-                new Text(String.valueOf(a) + "," + String.valueOf(b)),
-                new LongPair(vertex1, vertex2)
-              );
+        for (long a = 0; a < p - 1; a++) {
+          for (long b = a + 1; b < p; b++) {
+            if (((vertexPartition1 == a) && (vertexPartition2 == b))
+                || ((vertexPartition1 == b) && (vertexPartition2 == a))
+                || ((vertexPartition1 == a) && (vertexPartition2 == a))
+                || ((vertexPartition1 == b) && (vertexPartition2 == b))) {
+              context.write(new Text(String.valueOf(a) + "," + String.valueOf(b)), new LongPair(vertex1, vertex2));
             }
           }
         }
 
         if (vertexPartition1 != vertexPartition2) {
-          for (long a = 0; a < p-2; a++) {
-            for (long b = a+1; b < p-1; b++) {
-              for (long c = b+1; c < p; c++) {
-                if (
-                  ((vertexPartition1 == a) && (vertexPartition2 == a)) ||
-                  ((vertexPartition1 == a) && (vertexPartition2 == b)) ||
-                  ((vertexPartition1 == a) && (vertexPartition2 == c)) ||
-                  ((vertexPartition1 == b) && (vertexPartition2 == a)) ||
-                  ((vertexPartition1 == b) && (vertexPartition2 == b)) ||
-                  ((vertexPartition1 == b) && (vertexPartition2 == c)) ||
-                  ((vertexPartition1 == c) && (vertexPartition2 == a)) ||
-                  ((vertexPartition1 == c) && (vertexPartition2 == b)) ||
-                  ((vertexPartition1 == c) && (vertexPartition2 == c))
-                ) {
-                  context.write(
-                    new Text(String.valueOf(a) + "," + String.valueOf(b) + "," + String.valueOf(c)),
-                    new LongPair(vertex1, vertex2)
-                  );
+          for (long a = 0; a < p - 2; a++) {
+            for (long b = a + 1; b < p - 1; b++) {
+              for (long c = b + 1; c < p; c++) {
+                if (((vertexPartition1 == a) && (vertexPartition2 == a))
+                    || ((vertexPartition1 == a) && (vertexPartition2 == b))
+                    || ((vertexPartition1 == a) && (vertexPartition2 == c))
+                    || ((vertexPartition1 == b) && (vertexPartition2 == a))
+                    || ((vertexPartition1 == b) && (vertexPartition2 == b))
+                    || ((vertexPartition1 == b) && (vertexPartition2 == c))
+                    || ((vertexPartition1 == c) && (vertexPartition2 == a))
+                    || ((vertexPartition1 == c) && (vertexPartition2 == b))
+                    || ((vertexPartition1 == c) && (vertexPartition2 == c))) {
+                  context.write(new Text(String.valueOf(a) + "," + String.valueOf(b) + "," + String.valueOf(c)),
+                      new LongPair(vertex1, vertex2));
                 }
               }
             }
@@ -125,10 +114,8 @@ public class TriangleTypePartition extends Configured implements Tool {
 
     // Comparator for ordering vertices by degree, then by index in descending order
     public int compareVertices(long v1, long v2) {
-      return Long.compare(
-        (((long) this.adjacencyList.get(v2).size()) << 34) + v2,
-        (((long) this.adjacencyList.get(v1).size()) << 34) + v1
-      );
+      return Long.compare((((long) this.adjacencyList.get(v2).size()) << 34) + v2,
+          (((long) this.adjacencyList.get(v1).size()) << 34) + v1);
     }
 
     public void reduce(Text key, Iterable<LongPair> values, Context context) throws IOException, InterruptedException {
@@ -181,12 +168,8 @@ public class TriangleTypePartition extends Configured implements Tool {
             // using a method similar to merge sort's merge
             int i1 = 0;
             int i2 = 0;
-            while (
-              (i1 < v1Neighbors.size()) &&
-              (i2 < v2Neighbors.size()) &&
-              (compareVertices(v1Neighbors.get(i1), v1) < 0) &&
-              (compareVertices(v2Neighbors.get(i2), v1) < 0)
-            ) {
+            while ((i1 < v1Neighbors.size()) && (i2 < v2Neighbors.size())
+                && (compareVertices(v1Neighbors.get(i1), v1) < 0) && (compareVertices(v2Neighbors.get(i2), v1) < 0)) {
               if (compareVertices(v2Neighbors.get(i2), v1Neighbors.get(i1)) < 0) {
                 i2++;
               } else if (compareVertices(v2Neighbors.get(i2), v1Neighbors.get(i1)) > 0) {
@@ -221,10 +204,7 @@ public class TriangleTypePartition extends Configured implements Tool {
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
       String[] valueStrings = value.toString().split("\\s+");
       if (valueStrings.length > 1) {
-        context.write(
-          new Text(valueStrings[0].trim()),
-          new LongWritable(Long.parseLong(valueStrings[1]))
-        );
+        context.write(new Text(valueStrings[0].trim()), new LongWritable(Long.parseLong(valueStrings[1])));
       }
     }
   }
@@ -296,6 +276,7 @@ public class TriangleTypePartition extends Configured implements Tool {
 
     Job jobThree = new Job(getConf());
     jobThree.setJobName("mapreduce-three");
+    jobThree.setNumReduceTasks(1);
 
     jobThree.setMapOutputKeyClass(Text.class);
     jobThree.setMapOutputValueClass(LongWritable.class);
@@ -314,8 +295,10 @@ public class TriangleTypePartition extends Configured implements Tool {
     long startTime = System.nanoTime();
 
     int ret = jobOne.waitForCompletion(true) ? 0 : 1;
-    if (ret == 0) ret = jobTwo.waitForCompletion(true) ? 0 : 1;
-    if (ret == 0) ret = jobThree.waitForCompletion(true) ? 0 : 1;
+    if (ret == 0)
+      ret = jobTwo.waitForCompletion(true) ? 0 : 1;
+    if (ret == 0)
+      ret = jobThree.waitForCompletion(true) ? 0 : 1;
 
     long endTime = System.nanoTime();
 
