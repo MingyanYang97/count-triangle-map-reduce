@@ -225,7 +225,7 @@ public class TriangleTypePartition extends Configured implements Tool {
         sum /= (p - 1);
       }
 
-      context.write(key, new LongWritable(sum));
+      context.write(RESULT_KEY, new LongWritable(sum));
     }
   }
 
