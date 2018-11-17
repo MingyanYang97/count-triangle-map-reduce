@@ -10,16 +10,20 @@ hdfs dfs -rm -r -f /user/rayandrew/temp
 # hadoop com.sun.tools.javac.Main TriangleCount.java
 # jar cf triangle.jar Triangle*.class
 
-rm Graph*.class LongPair*.class
-hadoop com.sun.tools.javac.Main GraphPartition.java Graph.java LongPair.java
-jar cf graph.jar Graph*.class LongPair*.class
+# rm Graph*.class LongPair*.class
+# hadoop com.sun.tools.javac.Main GraphPartition.java Graph.java LongPair.java
+# jar cf graph.jar Graph*.class LongPair*.class
+
+rm TriangleTypePartition*.class LongPair*.class
+hadoop com.sun.tools.javac.Main TriangleTypePartition.java LongPair.java
+jar cf ttp.jar TriangleTypePartition*.class LongPair*.class
 
 # Uncomment to use links-anon file
-# hadoop jar triangle.jar TriangleCount /user/rayandrew/links_anon_input /user/rayandrew/links_anon_output
+# hadoop jar ttp.jar TriangleTypePartition /user/rayandrew/links_anon_input /user/rayandrew/links_anon_output
 
 # Uncomment to use twitter-rv file
-# Partition into 8 node
-hadoop jar graph.jar GraphPartition /data/twitter /user/rayandrew/twitter_output 8
+# Use 64 partitions
+hadoop jar ttp.jar TriangleTypePartition /data/twitter /user/rayandrew/twitter_output 64
 
 # Uncomment to use test file
-# hadoop jar triangle.jar TriangleCount /user/rayandrew/test_input /user/rayandrew/test_output
+# hadoop jar ttp.jar TriangleTypePartition /user/rayandrew/test_input /user/rayandrew/test_output
