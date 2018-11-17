@@ -19,11 +19,11 @@ hadoop com.sun.tools.javac.Main TriangleTypePartition.java LongPair.java
 jar cf ttp.jar TriangleTypePartition*.class LongPair*.class
 
 # Uncomment to use links-anon file
-# hadoop jar ttp.jar TriangleTypePartition /user/rayandrew/links_anon_input /user/rayandrew/links_anon_output
+# hadoop jar ttp.jar TriangleTypePartition /user/rayandrew/links_anon_input /user/rayandrew/links_anon_output 64
 
 # Uncomment to use twitter-rv file
 # Use 64 partitions
 hadoop jar ttp.jar TriangleTypePartition /data/twitter /user/rayandrew/twitter_output 64
 
 # Uncomment to use test file
-# hadoop jar ttp.jar TriangleTypePartition /user/rayandrew/test_input /user/rayandrew/test_output
+# hadoop jar ttp.jar TriangleTypePartition /user/rayandrew/test_input /user/rayandrew/test_output 64

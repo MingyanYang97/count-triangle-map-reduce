@@ -212,7 +212,7 @@ public class TriangleTypePartition extends Configured implements Tool {
 
   public static class MapperThree extends Mapper<LongWritable, Text, Text, LongWritable> {
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-      String valueStrings = value.toString().split("\\s+");
+      String[] valueStrings = value.toString().split("\\s+");
       if (valueStrings.length > 1) {
         context.write(
           new Text(valueStrings[0].trim()),
