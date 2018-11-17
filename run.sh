@@ -18,7 +18,7 @@ jar cf graph.jar Graph*.class
 # hadoop jar triangle.jar TriangleCount /user/rayandrew/links_anon_input /user/rayandrew/links_anon_output
 
 # Uncomment to use twitter-rv file
-hadoop jar graph.jar TriangleCount /data/twitter /user/rayandrew/twitter_output
+hadoop jar graph.jar GraphPartition /data/twitter /user/rayandrew/twitter_output
 
 # Uncomment to use test file
 # hadoop jar triangle.jar TriangleCount /user/rayandrew/test_input /user/rayandrew/test_output

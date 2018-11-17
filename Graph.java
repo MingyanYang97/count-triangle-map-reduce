@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class Graph {
   final private HashMap<Integer, Set<Integer>> adjacencyList;
-  final private long MAX_SIZE = 4000000;
+  final private int MAX_SIZE = 4000000;
 
   /**
    * Create new Graph object.
