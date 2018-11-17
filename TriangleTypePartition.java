@@ -85,7 +85,7 @@ public class TriangleTypePartition extends Configured implements Tool {
             ) {
               context.write(
                 new Text(String.valueOf(a) + "," + String.valueOf(b)),
-                new LongPair(a, b)
+                new LongPair(vertex1, vertex2)
               );
             }
           }
@@ -96,14 +96,19 @@ public class TriangleTypePartition extends Configured implements Tool {
             for (long b = a+1; b < p-1; b++) {
               for (long c = b+1; c < p; c++) {
                 if (
-                  ((vertexPartition1 == a) && (vertexPartition2 == b)) ||
-                  ((vertexPartition1 == b) && (vertexPartition2 == a)) ||
                   ((vertexPartition1 == a) && (vertexPartition2 == a)) ||
-                  ((vertexPartition1 == b) && (vertexPartition2 == b))
+                  ((vertexPartition1 == a) && (vertexPartition2 == b)) ||
+                  ((vertexPartition1 == a) && (vertexPartition2 == c)) ||
+                  ((vertexPartition1 == b) && (vertexPartition2 == a)) ||
+                  ((vertexPartition1 == b) && (vertexPartition2 == b)) ||
+                  ((vertexPartition1 == b) && (vertexPartition2 == c)) ||
+                  ((vertexPartition1 == c) && (vertexPartition2 == a)) ||
+                  ((vertexPartition1 == c) && (vertexPartition2 == b)) ||
+                  ((vertexPartition1 == c) && (vertexPartition2 == c))
                 ) {
                   context.write(
                     new Text(String.valueOf(a) + "," + String.valueOf(b) + "," + String.valueOf(c)),
-                    new LongPair(a, b)
+                    new LongPair(vertex1, vertex2)
                   );
                 }
               }
@@ -115,32 +120,23 @@ public class TriangleTypePartition extends Configured implements Tool {
   }
 
   public static class ReducerTwo extends Reducer<Text, LongPair, Text, LongWritable> {
-    Map<Long, List<Long>> adjacencyList = new HashMap(ESTIMATED_VERTEX_COUNT_PER_REDUCE);
+    final Map<Long, List<Long>> adjacencyList = new HashMap(ESTIMATED_VERTEX_COUNT_PER_REDUCE);
     List<Long> vertices = new ArrayList(ESTIMATED_VERTEX_COUNT_PER_REDUCE);
 
     // Comparator for ordering vertices by degree, then by index in descending order
     public int compareVertices(long v1, long v2) {
       return Long.compare(
-        (((long) this.adjacencyList.get(v2).size()) << 34) + ((long) v2),
-        (((long) this.adjacencyList.get(v1).size()) << 34) + ((long) v1)
+        (((long) this.adjacencyList.get(v2).size()) << 34) + v2,
+        (((long) this.adjacencyList.get(v1).size()) << 34) + v1
       );
-    }
-
-    class VertexComparator implements Comparator<Long> {
-      @Override
-      public int compare(Long v1, Long v2) {
-        return compareVertices(v1, v2);
-      }
     }
 
     public void reduce(Text key, Iterable<LongPair> values, Context context) throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
       long p = conf.getLong(PARTITION_COUNT_CONFIG_KEY, DEFAULT_PARTITION_COUNT);
 
-      // Add edges to the graph
-      Iterator<LongPair> valuesIterator = values.iterator();
-      while (valuesIterator.hasNext()) {
-        LongPair edge = valuesIterator.next();
+      // Add edges to the graph - assumes edges are unique
+      for (LongPair edge : values) {
 
         if (!adjacencyList.containsKey(edge.first)) {
           adjacencyList.put(edge.first, new ArrayList(ESTIMATED_VERTEX_DEGREE_PER_REDUCE));
@@ -155,9 +151,20 @@ public class TriangleTypePartition extends Configured implements Tool {
         adjacencyList.get(edge.second).add(edge.first);
       }
 
-      Collections.sort(vertices, new VertexComparator());
+      // Sort vertices and adjacency list
+      Collections.sort(vertices, new Comparator<Long>() {
+        @Override
+        public int compare(Long v1, Long v2) {
+          return compareVertices(v1, v2);
+        }
+      });
       for (Long vertex : vertices) {
-        Collections.sort(adjacencyList.get(vertex), new VertexComparator());
+        Collections.sort(adjacencyList.get(vertex), new Comparator<Long>() {
+          @Override
+          public int compare(Long v1, Long v2) {
+            return compareVertices(v1, v2);
+          }
+        });
       }
 
       long type1TriangleCount = 0;
@@ -206,6 +213,7 @@ public class TriangleTypePartition extends Configured implements Tool {
       context.write(TYPE_2_OR_3_TRIANGLE_COUNT_KEY, new LongWritable(type2Or3TriangleCount));
 
       adjacencyList.clear();
+      vertices.clear();
     }
   }
 

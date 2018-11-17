@@ -10,9 +10,11 @@ public class LongPair implements WritableComparable<LongPair> {
   public long first = 0;
   public long second = 0;
 
-  LongPair(long _first, long _second) {
-    first = _first;
-    second = _second;
+  public LongPair() {}
+
+  public LongPair(long first, long second) {
+    this.first = first;
+    this.second = second;
   }
 
   /**
@@ -21,26 +23,26 @@ public class LongPair implements WritableComparable<LongPair> {
    */
   @Override
   public void readFields(DataInput in) throws IOException {
-    first = in.readLong() + Long.MIN_VALUE;
-    second = in.readLong() + Long.MIN_VALUE;
+    this.first = in.readLong() + Long.MIN_VALUE;
+    this.second = in.readLong() + Long.MIN_VALUE;
   }
 
   @Override
   public void write(DataOutput out) throws IOException {
-    out.writeLong(first - Long.MIN_VALUE);
-    out.writeLong(second - Long.MIN_VALUE);
+    out.writeLong(this.first - Long.MIN_VALUE);
+    out.writeLong(this.second - Long.MIN_VALUE);
   }
 
   @Override
   public int hashCode() {
-    return (int) first * 157 + (int) second;
+    return (int) this.first * 157 + (int) this.second;
   }
 
   @Override
   public boolean equals(Object right) {
     if (right instanceof LongPair) {
       LongPair r = (LongPair) right;
-      return r.first == first && r.second == second;
+      return r.first == first && r.second == this.second;
     } else {
       return false;
     }
@@ -63,10 +65,10 @@ public class LongPair implements WritableComparable<LongPair> {
 
   @Override
   public int compareTo(LongPair o) {
-    if (first != o.first) {
-      return first < o.first ? -1 : 1;
-    } else if (second != o.second) {
-      return second < o.second ? -1 : 1;
+    if (this.first != o.first) {
+      return this.first < o.first ? -1 : 1;
+    } else if (this.second != o.second) {
+      return this.second < o.second ? -1 : 1;
     } else {
       return 0;
     }
