@@ -318,6 +318,7 @@ public class TriangleTypePartition extends Configured implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    return ToolRunner.run(new Configuration(), new TriangleTypePartition(), args);
+    int ret = ToolRunner.run(new Configuration(), new TriangleTypePartition(), args);
+    System.exit(ret);
   }
 }
