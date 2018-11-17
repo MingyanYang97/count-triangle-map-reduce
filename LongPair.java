@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 
-public static class LongPair implements WritableComparable<LongPair> {
+public class LongPair implements WritableComparable<LongPair> {
   private long first = 0;
   private long second = 0;
 
@@ -44,7 +44,7 @@ public static class LongPair implements WritableComparable<LongPair> {
 
   @Override
   public int hashCode() {
-    return first * 157 + second;
+    return (int) first * 157 + (int) second;
   }
 
   @Override

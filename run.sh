@@ -10,7 +10,7 @@ hdfs dfs -rm -r -f /user/rayandrew/temp
 # hadoop com.sun.tools.javac.Main TriangleCount.java
 # jar cf triangle.jar Triangle*.class
 
-rm Graph*.class
+rm Graph*.class LongPair*.class
 hadoop com.sun.tools.javac.Main GraphPartition.java Graph.java LongPair.java
 jar cf graph.jar Graph*.class LongPair*.class
 

@@ -102,7 +102,7 @@ public class GraphPartition extends Configured implements Tool {
       double sum = 0.0;
 
       while (valueIterator.hasNext()) {
-        sum += valueIterator.next();
+        sum += valueIterator.next().get();
       }
 
       context.write(NullWritable.get(), new DoubleWritable(sum));
