@@ -220,7 +220,7 @@ public class TriangleTypePartition extends Configured implements Tool {
         sum += value.get();
       }
 
-      if (key.toString().equals(TYPE_1_TRIANGLE_COUNT_KEY)) {
+      if (key.toString().equals(TYPE_1_TRIANGLE_COUNT_KEY.toString())) {
         sum /= (p - 1);
       }
 
